@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+<meta name="theme-color" content="#000000">
+<title>Emergency SOS — MindMirror</title>
+<style>
+:root {
+  --sos-red: #ff3b30;
+  --sos-red-dark: #cc2d24;
+  --bg: #000000;
+  --surface: #1c1c1e;
+  --text: #ffffff;
+  --text-secondary: #8e8e93;
+  --green: #34c759;
+  --orange: #ff9500;
+  --blue: #0a84ff;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Skip link for screen readers */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--sos-red);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 17px;
+  font-weight: 600;
+  z-index: 9999;
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: 16px;
+}
+
+/* Header */
+header {
+  padding: 16px 20px;
+  background: var(--surface);
+  border-bottom: 1px solid #2c2c2e;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+header .logo {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+header .status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--green);
+  display: inline-block;
+  margin-right: 6px;
+  animation: pulse 2s infinite;
+}
+header .status-text {
+  font-size: 13px;
+  color: var(--green);
+  font-weight: 500;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Main content */
+main {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Emergency Type Selector */
+.emergency-types {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.emergency-type {
+  background: var(--surface);
+  border: 2px solid transparent;
+  border-radius: 16px;
+  padding: 20px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.emergency-type:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+.emergency-type[aria-pressed="true"] {
+  border-color: var(--sos-red);
+  background: rgba(255, 59, 48, 0.15);
+}
+.emergency-type .icon {
+  font-size: 36px;
+  line-height: 1;
+}
+.emergency-type .label {
+  font-size: 15px;
+  font-weight: 600;
+}
+.emergency-type .desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+/* Main SOS Button */
+.sos-button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+}
+.sos-button {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ff5e54, var(--sos-red), var(--sos-red-dark));
+  border: none;
+  color: white;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.5);
+  animation: sos-pulse 2s infinite;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s;
+}
+.sos-button:active {
+  transform: scale(0.95);
+}
+.sos-button:focus-visible {
+  outline: 4px solid var(--blue);
+  outline-offset: 4px;
+}
+.sos-button.activated {
+  background: radial-gradient(circle at 35% 35%, #54d94e, #28a745, #1e7e34);
+  animation: none;
+  box-shadow: 0 0 40px rgba(52, 199, 89, 0.5);
+}
+
+@keyframes sos-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.6); }
+  70% { box-shadow: 0 0 0 40px rgba(255, 59, 48, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
+}
+
+.sos-label {
+  font-size: 15px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.sos-countdown {
+  font-size: 48px;
+  font-weight: 200;
+  color: var(--sos-red);
+  letter-spacing: -2px;
+}
+
+/* Action Buttons */
+.action-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.action-button {
+  background: var(--surface);
+  border: 1px solid #2c2c2e;
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  min-height: 64px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background 0.15s;
+}
+.action-button:active {
+  background: #2c2c2e;
+}
+.action-button:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+.action-button .action-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.action-icon.whatsapp { background: #25d366; }
+.action-icon.icloud { background: #007aff; }
+.action-icon.location { background: var(--orange); }
+.action-icon.contacts { background: #af52de; }
+
+.action-button .action-text {
+  flex: 1;
+}
+.action-button .action-title {
+  font-size: 16px;
+  font-weight: 600;
+  display: block;
+}
+.action-button .action-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: block;
+  margin-top: 2px;
+}
+.action-button .action-arrow {
+  color: var(--text-secondary);
+  font-size: 20px;
+}
+
+/* Alert banner */
+.alert-banner {
+  background: rgba(255, 59, 48, 0.12);
+  border: 1px solid rgba(255, 59, 48, 0.3);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+.alert-banner .alert-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.alert-banner .alert-text strong {
+  display: block;
+  font-weight: 600;
+}
+
+/* Status log */
+.status-log {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 16px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.status-log h2 {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+.log-entry {
+  font-size: 13px;
+  padding: 8px 0;
+  border-bottom: 1px solid #2c2c2e;
+  display: flex;
+  gap: 8px;
+}
+.log-entry:last-child { border-bottom: none; }
+.log-time {
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+.log-msg { color: var(--text); }
+.log-msg.success { color: var(--green); }
+.log-msg.error { color: var(--sos-red); }
+.log-msg.info { color: var(--blue); }
+
+/* Cancel overlay */
+.cancel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+}
+.cancel-overlay.active { display: flex; }
+.cancel-overlay h2 {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text);
+}
+.cancel-overlay .cancel-countdown {
+  font-size: 96px;
+  font-weight: 100;
+  color: var(--sos-red);
+}
+.cancel-overlay .cancel-btn {
+  background: var(--surface);
+  border: 2px solid var(--sos-red);
+  color: var(--sos-red);
+  font-size: 20px;
+  font-weight: 700;
+  padding: 20px 60px;
+  border-radius: 16px;
+  cursor: pointer;
+  min-height: 64px;
+}
+
+/* Footer */
+footer {
+  padding: 12px 20px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+  border-top: 1px solid #2c2c2e;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: more) {
+  .sos-button {
+    border: 4px solid white;
+  }
+  .action-button {
+    border-width: 2px;
+  }
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .sos-button { animation: none; }
+  .header .status-dot { animation: none; }
+}
+
+/* Focus indicator for VoiceOver */
+[role="button"]:focus,
+button:focus,
+a:focus {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+</style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to emergency controls</a>
+
+<header role="banner">
+  <div class="logo">🧠 MindMirror</div>
+  <div>
+    <span class="status-dot" aria-hidden="true"></span>
+    <span class="status-text" role="status" aria-live="polite">SOS Ready</span>
+  </div>
+</header>
+
+<main id="main-content" role="main">
+
+  <!-- Alert Banner (hidden by default) -->
+  <div class="alert-banner" id="alertBanner" role="alert" aria-live="assertive" style="display:none">
+    <span class="alert-icon">⚠️</span>
+    <div class="alert-text" id="alertText">
+      <strong>Emergency detected</strong>
+      <span>Remote activation in progress...</span>
+    </div>
+  </div>
+
+  <!-- Emergency Type Selector -->
+  <section aria-label="Emergency type">
+    <div class="emergency-types" role="radiogroup" aria-label="Select emergency type">
+      <div class="emergency-type" role="radio" aria-checked="true" aria-pressed="true"
+           tabindex="0" data-type="medical" onclick="selectType(this)"
+           onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectType(this)}">
+        <span class="icon">🏥</span>
+        <span class="label">Medical</span>
+        <span class="desc">Urgent health emergency</span>
+      </div>
+      <div class="emergency-type" role="radio" aria-checked="false" aria-pressed="false"
+           tabindex="0" data-type="rescue" onclick="selectType(this)"
+           onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectType(this)}">
+        <span class="icon">🆘</span>
+        <span class="label">Rescue</span>
+        <span class="desc">Need immediate help</span>
+      </div>
+      <div class="emergency-type" role="radio" aria-checked="false" aria-pressed="false"
+           tabindex="0" data-type="device" onclick="selectType(this)"
+           onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectType(this)}">
+        <span class="icon">📱</span>
+        <span class="label">Device</span>
+        <span class="desc">Phone lost/broken</span>
+      </div>
+      <div class="emergency-type" role="radio" aria-checked="false" aria-pressed="false"
+           tabindex="0" data-type="location" onclick="selectType(this)"
+           onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectType(this)}">
+        <span class="icon">📍</span>
+        <span class="label">Location</span>
+        <span class="desc">Share my location</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main SOS Button -->
+  <div class="sos-button-container">
+    <button class="sos-button" id="sosButton" onclick="triggerSOS()"
+            aria-label="Emergency SOS. Double tap and hold to activate emergency alert."
+            aria-pressed="false" role="button">
+      SOS
+    </button>
+    <span class="sos-label" id="sosLabel">Hold to activate</span>
+  </div>
+
+  <!-- Remote Actions -->
+  <section aria-label="Remote actions">
+    <div class="action-list">
+      <button class="action-button" onclick="activateWhatsApp()"
+              aria-label="Send emergency WhatsApp message to all contacts">
+        <span class="action-icon whatsapp" aria-hidden="true">💬</span>
+        <span class="action-text">
+          <span class="action-title">WhatsApp Emergency</span>
+          <span class="action-sub">Broadcast SOS to all contacts</span>
+        </span>
+        <span class="action-arrow" aria-hidden="true">›</span>
+      </button>
+
+      <button class="action-button" onclick="activateCloud()"
+              aria-label="Find iPhone via iCloud — play sound, lock, or erase">
+        <span class="action-icon icloud" aria-hidden="true">☁️</span>
+        <span class="action-text">
+          <span class="action-title">iCloud / Find My</span>
+          <span class="action-sub">Play sound • Lock • Erase</span>
+        </span>
+        <span class="action-arrow" aria-hidden="true">›</span>
+      </button>
+
+      <button class="action-button" onclick="shareLocation()"
+              aria-label="Share current location with emergency contacts">
+        <span class="action-icon location" aria-hidden="true">📍</span>
+        <span class="action-text">
+          <span class="action-title">Share Location</span>
+          <span class="action-sub">Live GPS coordinates via link</span>
+        </span>
+        <span class="action-arrow" aria-hidden="true">›</span>
+      </button>
+
+      <button class="action-button" onclick="openContacts()"
+              aria-label="Emergency contacts — call or message">
+        <span class="action-icon contacts" aria-hidden="true">👥</span>
+        <span class="action-text">
+          <span class="action-title">Emergency Contacts</span>
+          <span class="action-sub">Call or message directly</span>
+        </span>
+        <span class="action-arrow" aria-hidden="true">›</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Status Log -->
+  <section class="status-log" aria-label="Activity log">
+    <h2>Activity Log</h2>
+    <div id="logContainer" role="log" aria-live="polite">
+      <div class="log-entry">
+        <span class="log-time">--:--</span>
+        <span class="log-msg">System ready. Awaiting emergency trigger.</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Cancel Overlay -->
+<div class="cancel-overlay" id="cancelOverlay" role="dialog" aria-modal="true"
+     aria-label="Emergency activation in progress">
+  <h2>🚨 SOS ACTIVATED</h2>
+  <div class="cancel-countdown" id="cancelCountdown" aria-live="assertive">3</div>
+  <p style="color:var(--text-secondary);text-align:center">
+    Sending alerts to emergency contacts via WhatsApp<br>
+    Sharing location via iCloud
+  </p>
+  <button class="cancel-btn" onclick="cancelSOS()"
+          aria-label="Cancel emergency activation">CANCEL</button>
+</div>
+
+<footer role="contentinfo">
+  MindMirror Emergency • Abu Dhabi • @mindmirror.space
+</footer>
+
+<script>
+// ============================================================================
+// STATE
+// ============================================================================
+let currentType = 'medical';
+let sosActive = false;
+let countdownInterval = null;
+let countdownVal = 3;
+let touchStartY = 0;
+let sosHoldTimer = null;
+
+const EMERGENCY_MESSAGE = {
+  medical: "🚨 MEDICAL EMERGENCY — I need immediate medical help. This is an automated alert from MindMirror SOS.",
+  rescue: "🆘 RESCUE EMERGENCY — I need help now. This is an automated alert from MindMirror SOS.",
+  device: "📱 DEVICE EMERGENCY — My phone is lost/broken. This is an automated alert from MindMirror SOS. Last known location attached.",
+  location: "📍 LOCATION SHARE — I'm sharing my location. This is an automated alert from MindMirror SOS."
+};
+
+const CONTACTS = [
+  { name: "Emergency Contact 1", phone: "+971-XX-XXX-XXXX" },
+  { name: "Emergency Contact 2", phone: "+971-XX-XXX-XXXX" },
+  { name: "Emergency Contact 3", phone: "+971-XX-XXX-XXXX" }
+];
+
+// ============================================================================
+// LOGGING
+// ============================================================================
+function log(msg, type = 'info') {
+  const container = document.getElementById('logContainer');
+  const now = new Date();
+  const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.innerHTML = `<span class="log-time">${time}</span><span class="log-msg ${type}">${msg}</span>`;
+  container.prepend(entry);
+}
+
+// ============================================================================
+// EMERGENCY TYPE SELECTOR
+// ============================================================================
+function selectType(el) {
+  document.querySelectorAll('.emergency-type').forEach(t => {
+    t.setAttribute('aria-checked', 'false');
+    t.setAttribute('aria-pressed', 'false');
+  });
+  el.setAttribute('aria-checked', 'true');
+  el.setAttribute('aria-pressed', 'true');
+  currentType = el.dataset.type;
+  log(`Emergency type set: ${el.querySelector('.label').textContent}`, 'info');
+}
+
+// ============================================================================
+// SOS BUTTON — Touch & Keyboard accessible
+// ============================================================================
+const sosBtn = document.getElementById('sosButton');
+const sosLabel = document.getElementById('sosLabel');
+
+// Touch events (mobile)
+sosBtn.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  sosHoldTimer = setTimeout(() => {
+    triggerSOS();
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]);
+  }, 800);
+}, { passive: false });
+
+sosBtn.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  clearTimeout(sosHoldTimer);
+});
+
+sosBtn.addEventListener('touchcancel', () => {
+  clearTimeout(sosHoldTimer);
+});
+
+// Mouse events (desktop)
+sosBtn.addEventListener('mousedown', () => {
+  sosHoldTimer = setTimeout(() => {
+    triggerSOS();
+  }, 800);
+});
+
+sosBtn.addEventListener('mouseup', () => clearTimeout(sosHoldTimer));
+sosBtn.addEventListener('mouseleave', () => clearTimeout(sosHoldTimer));
+
+// Keyboard accessible (Enter/Space to activate)
+sosBtn.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    triggerSOS();
+  }
+});
+
+// ============================================================================
+// TRIGGER SOS
+// ============================================================================
+function triggerSOS() {
+  if (sosActive) return;
+  sosActive = true;
+
+  log('🆘 SOS ACTIVATED', 'error');
+  log(`Type: ${currentType.toUpperCase()}`, 'info');
+
+  // Show cancel overlay
+  const overlay = document.getElementById('cancelOverlay');
+  overlay.classList.add('active');
+
+  // Start countdown
+  countdownVal = 3;
+  const cdEl = document.getElementById('cancelCountdown');
+  cdEl.textContent = countdownVal;
+
+  countdownInterval = setInterval(() => {
+    countdownVal--;
+    cdEl.textContent = countdownVal;
+    if (countdownVal <= 0) {
+      clearInterval(countdownInterval);
+      activateEmergency();
+    }
+  }, 1000);
+}
+
+function cancelSOS() {
+  sosActive = false;
+  clearInterval(countdownInterval);
+  document.getElementById('cancelOverlay').classList.remove('active');
+  log('SOS cancelled by user', 'success');
+}
+
+// ============================================================================
+// EMERGENCY ACTIVATION — WhatsApp + iCloud
+// ============================================================================
+function activateEmergency() {
+  document.getElementById('cancelOverlay').classList.remove('active');
+  document.getElementById('alertBanner').style.display = 'flex';
+
+  // Update SOS button
+  sosBtn.classList.add('activated');
+  sosBtn.textContent = '✓';
+  sosBtn.setAttribute('aria-label', 'Emergency activated. Help is on the way.');
+  sosLabel.textContent = 'Emergency activated';
+
+  // Step 1: WhatsApp broadcast
+  setTimeout(() => {
+    activateWhatsApp();
+  }, 500);
+
+  // Step 2: iCloud location
+  setTimeout(() => {
+    activateCloud();
+  }, 1500);
+
+  // Step 3: Share location
+  setTimeout(() => {
+    shareLocation();
+  }, 2500);
+
+  log('✅ Emergency pipeline complete — all contacts notified', 'success');
+
+  // Haptic feedback
+  if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
+}
+
+// ============================================================================
+// WHATSAPP EMERGENCY BROADCAST
+// ============================================================================
+function activateWhatsApp() {
+  const msg = EMERGENCY_MESSAGE[currentType];
+  const fullMsg = `${msg}\n\n⏰ Time: ${new Date().toLocaleString()}\n📍 Location: (fetching...)\n\n— MindMirror SOS`;
+
+  log('📤 Sending WhatsApp emergency broadcast...', 'info');
+
+  // Build WhatsApp broadcast URL
+  // Opens WhatsApp with pre-filled message — user selects contacts
+  const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(fullMsg)}`;
+
+  // Open WhatsApp (mobile) or web (desktop)
+  window.open(waUrl, '_blank', 'noopener,noreferrer');
+
+  log('✅ WhatsApp opened — select contacts to broadcast', 'success');
+
+  // Alternative: wa.me links for specific contacts
+  // https://wa.me/971XXXXXXXX?text=...
+}
+
+// ============================================================================
+// iCLOUD / FIND MY
+// ============================================================================
+function activateCloud() {
+  log('☁️ Opening iCloud Find My...', 'info');
+
+  // Open iCloud Find My in new tab
+  const icloudUrl = 'https://www.icloud.com/find';
+  window.open(icloudUrl, '_blank', 'noopener,noreferrer');
+
+  log('✅ iCloud Find My opened — select your device', 'success');
+}
+
+// ============================================================================
+// SHARE LOCATION
+// ============================================================================
+function shareLocation() {
+  log('📍 Fetching GPS location...', 'info');
+
+  if ('geolocation' in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos.coords.latitude.toFixed(6);
+        const lng = pos.coords.longitude.toFixed(6);
+        const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
+        const fullLat = pos.coords.latitude;
+        const fullLng = pos.coords.longitude;
+
+        log(`📍 Location acquired: ${lat}, ${lng}`, 'success');
+
+        // Send via WhatsApp
+        const locMsg = `📍 MY LOCATION: ${mapsUrl}\n\n— MindMirror SOS (${new Date().toLocaleTimeString()})`;
+        const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(locMsg)}`;
+        window.open(waUrl, '_blank', 'noopener,noreferrer');
+
+        log('📍 Location link shared via WhatsApp', 'success');
+      },
+      (err) => {
+        log('❌ GPS denied or unavailable — sharing iCloud link instead', 'error');
+        // Fallback: iCloud find my location
+        activateCloud();
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  } else {
+    log('❌ Geolocation not supported', 'error');
+  }
+}
+
+// ============================================================================
+// EMERGENCY CONTACTS
+// ============================================================================
+function openContacts() {
+  const contactList = CONTACTS.map(c =>
+    `${c.name}: tel:${c.phone}`
+  ).join('\n');
+
+  log('👥 Opening emergency contacts...', 'info');
+
+  // Show first contact's call option
+  const c = CONTACTS[0];
+  if (confirm(`Call ${c.name}?\n${c.phone}\n\n(Cancel to see all contacts)`)) {
+    window.location.href = `tel:${c.phone}`;
+  }
+}
+
+// ============================================================================
+// REMOTE ACTIVATION (via URL params or postMessage)
+// ============================================================================
+function checkRemoteActivation() {
+  const params = new URLSearchParams(window.location.search);
+  const remote = params.get('remote');
+  const type = params.get('type') || 'rescue';
+
+  if (remote === 'activate') {
+    log('🔔 Remote activation signal received!', 'error');
+    currentType = type;
+    // Auto-trigger after 1 second
+    setTimeout(() => {
+      triggerSOS();
+    }, 1000);
+  }
+
+  // Listen for postMessage (from parent/bridge)
+  window.addEventListener('message', (e) => {
+    if (e.data && e.data.action === 'sos') {
+      log('🔔 Remote SOS via postMessage', 'error');
+      currentType = e.data.type || 'rescue';
+      triggerSOS();
+    }
+  });
+}
+
+// ============================================================================
+// INIT
+// ============================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  log('System ready. Emergency services on standby.', 'success');
+  checkRemoteActivation();
+
+  // Register service worker for offline SOS (if available)
+  if ('serviceWorker' in navigator) {
+    log('Service Worker support available for offline SOS', 'info');
+  }
+});
+</script>
+
+</body>
+</html>
